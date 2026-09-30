@@ -78,7 +78,7 @@ export class WebSocketGateway {
     });
 
     // Heartbeat check for active sockets every 30 seconds
-    setInterval(() => {
+    const pingInterval = setInterval(() => {
       if (!this.wss) return;
       this.wss.clients.forEach((ws) => {
         const client = ws as ClientSocket;
@@ -87,6 +87,7 @@ export class WebSocketGateway {
         client.ping();
       });
     }, 30000);
+    pingInterval.unref();
 
     Logger.info('WebSocketGateway initialized on /ws');
   }

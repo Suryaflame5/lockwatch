@@ -22,6 +22,7 @@ export class HeartbeatService {
     this.monitorInterval = setInterval(() => {
       this.evaluateAllParticipantHealth();
     }, 5000);
+    this.monitorInterval.unref();
   }
 
   public stopHeartbeatMonitor() {
