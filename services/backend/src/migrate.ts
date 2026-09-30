@@ -14,11 +14,10 @@ export async function runMigrations(): Promise<void> {
 
   Logger.info('Starting LockWatch production database migrations...');
 
+  const isRemote = dbUrl.includes('neon.tech') || dbUrl.includes('sslmode=require') || (!dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1'));
   const client = new Client({
     connectionString: dbUrl,
-    ssl: process.env.NODE_ENV === 'production' && !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1')
-      ? { rejectUnauthorized: false }
-      : false
+    ssl: isRemote ? { rejectUnauthorized: false } : false
   });
 
   await client.connect();

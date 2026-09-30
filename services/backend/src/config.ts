@@ -3,9 +3,9 @@ import path from 'path';
 
 function loadEnv() {
   const envPaths = [
-    path.resolve(process.cwd(), '.env'),
     path.resolve(process.cwd(), 'services/backend/.env'),
     path.resolve(__dirname, '../.env'),
+    path.resolve(process.cwd(), '.env'),
     path.resolve(__dirname, '../../.env')
   ];
 

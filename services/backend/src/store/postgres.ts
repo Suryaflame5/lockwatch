@@ -10,11 +10,13 @@ export class PostgresService {
 
   private constructor() {
     if (config.databaseUrl) {
+      const isRemote = config.databaseUrl.includes('neon.tech') || config.databaseUrl.includes('sslmode=require') || !config.databaseUrl.includes('localhost');
       this.pool = new Pool({
         connectionString: config.databaseUrl,
+        ssl: isRemote ? { rejectUnauthorized: false } : undefined,
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000
+        connectionTimeoutMillis: 10000
       });
 
       this.pool.on('error', (err) => {
