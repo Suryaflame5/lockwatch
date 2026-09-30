@@ -61,16 +61,34 @@ wsGateway.initialize(server);
 export const heartbeatService = new HeartbeatService();
 heartbeatService.startHeartbeatMonitor();
 
+import { runMigrations } from './migrate.js';
+
 export const expirationWorker = ExpirationWorker.getInstance();
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && process.env.RUN_WORKER !== 'false') {
   expirationWorker.start(3000);
 }
 
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(config.port, () => {
-    Logger.info(`LockWatch Production Backend running on port ${config.port}`, {
-      port: config.port,
-      environment: process.env.NODE_ENV || 'production'
+  const host = process.env.HOST || '0.0.0.0';
+
+  const startServer = async () => {
+    if (process.env.AUTO_MIGRATE === 'true') {
+      try {
+        Logger.info('AUTO_MIGRATE is enabled. Running database migrations...');
+        await runMigrations();
+      } catch (err: any) {
+        Logger.error('Failed to run database migrations during startup', { error: err.message });
+      }
+    }
+
+    server.listen(config.port, host, () => {
+      Logger.info(`LockWatch Production Backend running on http://${host}:${config.port}`, {
+        port: config.port,
+        host,
+        environment: process.env.NODE_ENV || 'production'
+      });
     });
-  });
+  };
+
+  startServer();
 }

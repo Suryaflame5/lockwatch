@@ -6,6 +6,7 @@ COPY package*.json ./
 COPY packages/ ./packages/
 COPY services/ ./services/
 COPY apps/ ./apps/
+COPY database/ ./database/
 
 RUN npm install
 RUN npm run build:packages
@@ -21,6 +22,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/services/backend/dist ./services/backend/dist
 COPY --from=builder /app/services/backend/package*.json ./services/backend/
+COPY --from=builder /app/database ./database
 
 EXPOSE 4000
 

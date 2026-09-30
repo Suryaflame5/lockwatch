@@ -1,3 +1,40 @@
+import fs from 'fs';
+import path from 'path';
+
+function loadEnv() {
+  const envPaths = [
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'services/backend/.env'),
+    path.resolve(__dirname, '../.env'),
+    path.resolve(__dirname, '../../.env')
+  ];
+
+  for (const p of envPaths) {
+    if (fs.existsSync(p)) {
+      try {
+        const content = fs.readFileSync(p, 'utf8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith('#')) {
+            const eqIdx = trimmed.indexOf('=');
+            if (eqIdx > 0) {
+              const key = trimmed.slice(0, eqIdx).trim();
+              const val = trimmed.slice(eqIdx + 1).trim();
+              if (!process.env[key]) {
+                process.env[key] = val.replace(/^["']|["']$/g, '');
+              }
+            }
+          }
+        }
+      } catch {}
+    }
+  }
+}
+
+try {
+  loadEnv();
+} catch {}
+
 export const config = {
   port: parseInt(process.env.PORT || '4000', 10),
   jwtSecret: process.env.JWT_SECRET || 'lockwatch_super_secure_jwt_secret_key_2026',

@@ -4,7 +4,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Institutions (Tenants)
-CREATE TABLE institutions (
+CREATE TABLE IF NOT EXISTS institutions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code VARCHAR(30) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE institutions (
 );
 
 -- Users (All roles: SUPER_ADMIN, INSTITUTION_ADMIN, FACULTY, INVIGILATOR, STUDENT)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
     role VARCHAR(30) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE users (
 );
 
 -- Faculty details
-CREATE TABLE faculty (
+CREATE TABLE IF NOT EXISTS faculty (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
@@ -43,7 +43,7 @@ CREATE TABLE faculty (
 );
 
 -- Student details
-CREATE TABLE students (
+CREATE TABLE IF NOT EXISTS students (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
@@ -56,7 +56,7 @@ CREATE TABLE students (
 );
 
 -- Registered student devices
-CREATE TABLE devices (
+CREATE TABLE IF NOT EXISTS devices (
     id UUID PRIMARY KEY, -- Application-generated cryptographic device UUID
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
@@ -75,7 +75,7 @@ CREATE TABLE devices (
 );
 
 -- Examination Sessions
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
     faculty_id UUID NOT NULL REFERENCES faculty(id) ON DELETE RESTRICT,
@@ -98,7 +98,7 @@ CREATE TABLE sessions (
 );
 
 -- Session Participants
-CREATE TABLE session_participants (
+CREATE TABLE IF NOT EXISTS session_participants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE RESTRICT,
@@ -126,7 +126,7 @@ CREATE TABLE session_participants (
 );
 
 -- Faculty-to-Device Session Commands
-CREATE TABLE session_commands (
+CREATE TABLE IF NOT EXISTS session_commands (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     student_id UUID REFERENCES students(id) ON DELETE CASCADE,
@@ -141,7 +141,7 @@ CREATE TABLE session_commands (
 );
 
 -- Immutable Realtime Session Events
-CREATE TABLE session_events (
+CREATE TABLE IF NOT EXISTS session_events (
     id UUID PRIMARY KEY, -- Application eventId (UUID)
     session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
@@ -156,7 +156,7 @@ CREATE TABLE session_events (
 );
 
 -- Real-time Faculty Alerts
-CREATE TABLE alerts (
+CREATE TABLE IF NOT EXISTS alerts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     student_id UUID REFERENCES students(id) ON DELETE CASCADE,
@@ -173,7 +173,7 @@ CREATE TABLE alerts (
 );
 
 -- Immutable Security & Faculty Audit Logs
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
     faculty_id UUID REFERENCES faculty(id) ON DELETE SET NULL,
@@ -189,7 +189,7 @@ CREATE TABLE audit_logs (
 );
 
 -- Session Post-Examination Reports
-CREATE TABLE reports (
+CREATE TABLE IF NOT EXISTS reports (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID UNIQUE NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
@@ -204,7 +204,7 @@ CREATE TABLE reports (
 );
 
 -- Refresh Tokens for Token Rotation
-CREATE TABLE refresh_tokens (
+CREATE TABLE IF NOT EXISTS refresh_tokens (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_hash VARCHAR(255) NOT NULL,
@@ -214,7 +214,7 @@ CREATE TABLE refresh_tokens (
 );
 
 -- Device Enrollment & Platform Capabilities
-CREATE TABLE device_enrollments (
+CREATE TABLE IF NOT EXISTS device_enrollments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     device_id UUID NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
     institution_id UUID NOT NULL REFERENCES institutions(id) ON DELETE CASCADE,
@@ -225,7 +225,7 @@ CREATE TABLE device_enrollments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE platform_capabilities (
+CREATE TABLE IF NOT EXISTS platform_capabilities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     device_id UUID NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
     capability VARCHAR(50) NOT NULL,
