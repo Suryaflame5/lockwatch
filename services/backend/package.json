@@ -1,0 +1,32 @@
+{
+  "name": "@lockwatch/backend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc -w & node dist/index.js",
+    "test": "node --test dist/**/*.test.js"
+  },
+  "dependencies": {
+    "@lockwatch/shared-models": "^1.0.0",
+    "@lockwatch/validation": "^1.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.1",
+    "ws": "^8.17.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.12.12",
+    "@types/uuid": "^9.0.8",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.4.5"
+  }
+}

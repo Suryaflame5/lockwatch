@@ -1,0 +1,25 @@
+{
+  "name": "lockwatch-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LockWatch - Production-grade Supervised Examination & Classroom Control Platform",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:packages": "npm run build --workspace=@lockwatch/shared-models && npm run build --workspace=@lockwatch/validation && npm run build --workspace=@lockwatch/design-system && npm run build --workspace=@lockwatch/api-client",
+    "build:backend": "npm run build --workspace=@lockwatch/backend",
+    "build:faculty-mobile": "npm run build --workspace=@lockwatch/faculty-mobile",
+    "build:student-mobile": "npm run build --workspace=@lockwatch/student-mobile",
+    "build": "npm run build:packages && npm run build:backend && npm run build:faculty-mobile && npm run build:student-mobile",
+    "test": "npx tsx --test tests/*.test.ts",
+    "dev:backend": "npm run dev --workspace=@lockwatch/backend",
+    "dev:faculty": "npm run dev --workspace=@lockwatch/faculty-mobile",
+    "dev:student": "npm run dev --workspace=@lockwatch/student-mobile"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

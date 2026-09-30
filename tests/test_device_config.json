@@ -1,0 +1,26 @@
+{
+  "device": {
+    "serial": "10MFA4FTZX0001C",
+    "manufacturer": "vivo",
+    "brand": "vivo",
+    "model": "V2521",
+    "product": "V2521Li",
+    "osVersion": "Android 16 (API 36)",
+    "apiLevel": 36,
+    "platform": "ANDROID",
+    "transportId": "1",
+    "connectionType": "USB Debugging",
+    "mobileNumber": "7418320315",
+    "normalizedMobileNumber": "+917418320315"
+  },
+  "auth": {
+    "email": "suryaflame2007@gmail.com",
+    "password": "StudentPassword123!",
+    "mobileNumber": "7418320315",
+    "normalizedMobileNumber": "+917418320315",
+    "institutionCode": "TECH-UNI",
+    "registerNumber": "23AIML007",
+    "role": "STUDENT",
+    "displayName": "Surya"
+  }
+}

@@ -1,0 +1,27 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY packages/ ./packages/
+COPY services/ ./services/
+COPY apps/ ./apps/
+
+RUN npm install
+RUN npm run build:packages
+RUN npm run build:backend
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/services/backend/dist ./services/backend/dist
+COPY --from=builder /app/services/backend/package*.json ./services/backend/
+
+EXPOSE 4000
+
+CMD ["node", "services/backend/dist/index.js"]

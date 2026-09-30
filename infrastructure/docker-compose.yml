@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lockwatch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lockwatch
+      POSTGRES_USER: lockwatch_admin
+      POSTGRES_PASSWORD: lockwatch_production_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lockwatch_admin -d lockwatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lockwatch-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.backend
+    container_name: lockwatch-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      DATABASE_URL: postgres://lockwatch_admin:lockwatch_production_password_2026@postgres:5432/lockwatch
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-lockwatch_super_secure_jwt_secret_key_2026}
+      REFRESH_SECRET: ${REFRESH_SECRET:-lockwatch_super_secure_refresh_secret_key_2026}
+      API_BASE_URL: http://localhost:4000
+      WEB_BASE_URL: http://localhost:3000
+    ports:
+      - "4000:4000"
+
+  faculty-web:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.faculty
+    container_name: lockwatch-faculty-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  student-mobile:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.student
+    container_name: lockwatch-student-mobile
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

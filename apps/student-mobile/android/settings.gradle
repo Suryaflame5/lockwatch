@@ -1,0 +1,4 @@
+rootProject.name = 'LockWatchStudent'
+include ':app'
+include ':native-android-security'
+project(':native-android-security').projectDir = new File(rootProject.projectDir, '../../../native/android-security')

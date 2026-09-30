@@ -1,0 +1,60 @@
+:root {
+  --bg-base: #0a0d14;
+  --bg-surface: #101522;
+  --bg-elevated: #171e31;
+  --bg-card: #131929;
+  --border-light: #1e293b;
+  --border-focus: #6366f1;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --accent-cyan: #06b6d4;
+  --status-active: #10b981;
+  --status-warning: #f59e0b;
+  --status-critical: #ef4444;
+  --status-offline: #64748b;
+  --status-emergency: #f43f5e;
+  --status-ready: #3b82f6;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Obsidian Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  outline: none;
+}
