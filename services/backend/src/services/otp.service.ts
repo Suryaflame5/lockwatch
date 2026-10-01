@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { OtpChallenge, OtpPurpose } from '@lockwatch/shared-models';
-import { DataStore } from '../store/database';
-import { Logger } from '../logger';
-import { normalizePhoneNumber } from './phone.utils';
+import { DataStore } from '../store/database.js';
+import { Logger } from '../logger.js';
+import { normalizePhoneNumber } from './phone.utils.js';
 
 export interface OtpProvider {
   sendOtp(phoneNumber: string, otp: string, purpose: OtpPurpose): Promise<{ success: boolean; messageId?: string }>;

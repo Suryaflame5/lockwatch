@@ -1,8 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import pg from 'pg';
 import { config } from './config.js';
 import { Logger } from './logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const { Client } = pg;
 
