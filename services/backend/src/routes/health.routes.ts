@@ -4,6 +4,23 @@ import { PostgresService } from '../store/postgres.js';
 
 export const healthRouter = Router();
 
+healthRouter.get('/', (_req, res) => {
+  res.json({
+    service: 'lockwatch-backend',
+    version: '1.0.0',
+    status: 'RUNNING',
+    endpoints: {
+      health: '/health',
+      healthDb: '/health/db',
+      auth: '/auth',
+      faculty: '/faculty',
+      classes: '/classes',
+      ws: '/ws'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 healthRouter.get('/health', (_req, res) => {
   res.json({
     status: 'HEALTHY',
