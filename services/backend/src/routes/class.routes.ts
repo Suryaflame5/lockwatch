@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { requireAuth, requireRoles, AuthenticatedRequest } from '../middleware/auth.middleware.js';
 import { UserRole } from '@lockwatch/shared-models';
 import { ClassService } from '../services/class.service.js';
@@ -27,19 +27,20 @@ const store = DataStore.getInstance();
 
 classRouter.use(requireAuth, requireRoles(UserRole.FACULTY, UserRole.INSTITUTION_ADMIN, UserRole.SUPER_ADMIN));
 
-classRouter.get('/', (req: AuthenticatedRequest, res) => {
+classRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
 
     const classes = classService.getFacultyClasses(faculty.id);
     res.json(classes);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ message });
   }
 });
 
-classRouter.post('/', (req: AuthenticatedRequest, res) => {
+classRouter.post('/', (req: AuthenticatedRequest, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
@@ -56,21 +57,23 @@ classRouter.post('/', (req: AuthenticatedRequest, res) => {
     });
 
     res.status(201).json(newClass);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.get('/:id', (req: AuthenticatedRequest, res) => {
+classRouter.get('/:id', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const cls = classService.getClassById(req.params.id);
     res.json(cls);
-  } catch (err: any) {
-    res.status(404).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(404).json({ message });
   }
 });
 
-classRouter.patch('/:id', (req: AuthenticatedRequest, res) => {
+classRouter.patch('/:id', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
@@ -78,92 +81,101 @@ classRouter.patch('/:id', (req: AuthenticatedRequest, res) => {
     const validated = UpdateClassSchema.parse(req.body);
     const updated = classService.updateClass(req.params.id, faculty.id, validated);
     res.json(updated);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.post('/:id/archive', (req: AuthenticatedRequest, res) => {
+classRouter.post('/:id/archive', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
 
     classService.archiveClass(req.params.id, faculty.id);
     res.json({ message: 'Class archived successfully' });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.post('/:id/qr', (req: AuthenticatedRequest, res) => {
+classRouter.post('/:id/qr', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
 
     const qrData = classService.generateClassQr(req.params.id, faculty.id);
     res.json(qrData);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.get('/:id/roster', (req: AuthenticatedRequest, res) => {
+classRouter.get('/:id/roster', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const roster = classService.getClassRoster(req.params.id);
     res.json(roster);
-  } catch (err: any) {
-    res.status(404).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(404).json({ message });
   }
 });
 
-classRouter.post('/:id/roster', (req: AuthenticatedRequest, res) => {
+classRouter.post('/:id/roster', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const validated = AddStudentToClassSchema.parse(req.body);
     const added = classService.addStudentToClass(req.params.id, validated.registerNumber);
     res.status(201).json(added);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.post('/:id/roster/bulk', (req: AuthenticatedRequest, res) => {
+classRouter.post('/:id/roster/bulk', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const validated = BulkAddStudentsSchema.parse(req.body);
     const result = classService.bulkAddStudents(req.params.id, validated.registerNumbers);
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.delete('/:id/roster/:studentId', (req: AuthenticatedRequest, res) => {
+classRouter.delete('/:id/roster/:studentId', (req: AuthenticatedRequest<{ id: string; studentId: string }>, res: Response) => {
   try {
     classService.removeStudentFromClass(req.params.id, req.params.studentId);
     res.json({ message: 'Student removed from class roster' });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-classRouter.get('/:id/history', (req: AuthenticatedRequest, res) => {
+classRouter.get('/:id/history', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const history = classService.getClassHistory(req.params.id);
     res.json(history);
-  } catch (err: any) {
-    res.status(404).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(404).json({ message });
   }
 });
 
-classRouter.get('/:id/report', (req: AuthenticatedRequest, res) => {
+classRouter.get('/:id/report', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const report = classService.getClassReport(req.params.id);
     res.json(report);
-  } catch (err: any) {
-    res.status(404).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(404).json({ message });
   }
 });
 
-classRouter.post('/:id/sessions', (req: AuthenticatedRequest, res) => {
+classRouter.post('/:id/sessions', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
@@ -190,13 +202,14 @@ classRouter.post('/:id/sessions', (req: AuthenticatedRequest, res) => {
     });
 
     res.status(201).json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
 // GET /classes/:id/session-status (Section 72)
-classRouter.get('/:id/session-status', (req: AuthenticatedRequest, res) => {
+classRouter.get('/:id/session-status', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const cls = store.classes.get(req.params.id);
     if (!cls || cls.institutionId !== req.user!.institutionId) {
@@ -213,8 +226,9 @@ classRouter.get('/:id/session-status', (req: AuthenticatedRequest, res) => {
       activeSession,
       metrics
     });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
@@ -224,19 +238,20 @@ classRouter.get('/:id/session-status', (req: AuthenticatedRequest, res) => {
 
 studentClassRouter.use(requireAuth, requireRoles(UserRole.STUDENT));
 
-studentClassRouter.get('/', (req: AuthenticatedRequest, res) => {
+studentClassRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
 
     const classes = classService.getStudentClasses(student.id);
     res.json(classes);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ message });
   }
 });
 
-studentClassRouter.post('/join-code', (req: AuthenticatedRequest, res) => {
+studentClassRouter.post('/join-code', (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
@@ -247,12 +262,13 @@ studentClassRouter.post('/join-code', (req: AuthenticatedRequest, res) => {
       registerNumber: validated.registerNumber
     });
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-studentClassRouter.post('/join-qr', (req: AuthenticatedRequest, res) => {
+studentClassRouter.post('/join-qr', (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
@@ -263,12 +279,13 @@ studentClassRouter.post('/join-qr', (req: AuthenticatedRequest, res) => {
       registerNumber: validated.registerNumber
     });
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-studentClassRouter.post('/join', (req: AuthenticatedRequest, res) => {
+studentClassRouter.post('/join', (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
@@ -283,8 +300,9 @@ studentClassRouter.post('/join', (req: AuthenticatedRequest, res) => {
       return res.status(400).json({ message: 'Either class code or QR token is required.' });
     }
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 

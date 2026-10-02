@@ -12,7 +12,9 @@ import {
   PlatformType,
   DeviceEnrollmentStatus,
   ClassMembershipStatus,
-  OtpPurpose
+  OtpPurpose,
+  Institution,
+  ClassJoinMethod
 } from '@lockwatch/shared-models';
 import { Logger } from '../logger.js';
 import { OtpService, OtpProvider } from './otp.service.js';
@@ -319,7 +321,7 @@ export class AuthService {
     ipAddress?: string;
   }) {
     let student: Student | undefined;
-    let institution: any | undefined;
+    let institution: Institution | undefined;
 
     // Check if identifier is an email address
     const emailCandidate = (payload.phoneNumber && payload.phoneNumber.includes('@'))
@@ -455,7 +457,7 @@ export class AuthService {
               studentId: newStudentId,
               displayName: student.name,
               registerNumber: student.registerNumber,
-              joinMethod: 'FACULTY_ADDED' as any,
+              joinMethod: ClassJoinMethod.FACULTY_ADDED,
               status: ClassMembershipStatus.ENROLLED,
               joinedAt: new Date().toISOString()
             });

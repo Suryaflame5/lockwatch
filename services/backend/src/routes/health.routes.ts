@@ -1,10 +1,10 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { DataStore } from '../store/database.js';
 import { PostgresService } from '../store/postgres.js';
 
 export const healthRouter = Router();
 
-healthRouter.get('/', (_req, res) => {
+healthRouter.get('/', (_req: Request, res: Response) => {
   res.json({
     service: 'lockwatch-backend',
     version: '1.0.0',
@@ -21,7 +21,7 @@ healthRouter.get('/', (_req, res) => {
   });
 });
 
-healthRouter.get('/health', (_req, res) => {
+healthRouter.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'HEALTHY',
     service: 'lockwatch-backend',
@@ -30,7 +30,7 @@ healthRouter.get('/health', (_req, res) => {
   });
 });
 
-healthRouter.get('/health/db', async (_req, res) => {
+healthRouter.get('/health/db', async (_req: Request, res: Response) => {
   const pgService = PostgresService.getInstance();
   const dbHealth = await pgService.testConnection();
   res.status(dbHealth.connected ? 200 : 503).json({
@@ -44,7 +44,7 @@ healthRouter.get('/health/db', async (_req, res) => {
   });
 });
 
-healthRouter.get('/ready', async (_req, res) => {
+healthRouter.get('/ready', async (_req: Request, res: Response) => {
   const store = DataStore.getInstance();
   const isReady = store.institutions.size > 0;
   res.status(isReady ? 200 : 503).json({

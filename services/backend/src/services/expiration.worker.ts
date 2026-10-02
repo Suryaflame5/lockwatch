@@ -21,7 +21,7 @@ export class ExpirationWorker {
   private static instance: ExpirationWorker;
   private store = DataStore.getInstance();
   private wsGateway = WebSocketGateway.getInstance();
-  private timer: NodeJS.Timeout | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
   private isRunning = false;
 
   private constructor() {}

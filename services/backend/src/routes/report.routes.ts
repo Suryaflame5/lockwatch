@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { requireAuth, requireRoles, AuthenticatedRequest } from '../middleware/auth.middleware.js';
 import { UserRole } from '@lockwatch/shared-models';
 import { ReportService } from '../services/report.service.js';
@@ -10,7 +10,7 @@ const store = DataStore.getInstance();
 
 const facultyAuth = [requireAuth, requireRoles(UserRole.FACULTY, UserRole.INSTITUTION_ADMIN, UserRole.SUPER_ADMIN)];
 
-reportRouter.get('/sessions/:id/report', ...facultyAuth, (req: AuthenticatedRequest, res) => {
+reportRouter.get('/sessions/:id/report', ...facultyAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const session = store.sessions.get(req.params.id);
     if (!session || session.institutionId !== req.user!.institutionId) {
@@ -18,12 +18,13 @@ reportRouter.get('/sessions/:id/report', ...facultyAuth, (req: AuthenticatedRequ
     }
     const report = reportService.generateSessionReport(req.params.id);
     res.json(report);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-reportRouter.get('/sessions/:id/report.csv', ...facultyAuth, (req: AuthenticatedRequest, res) => {
+reportRouter.get('/sessions/:id/report.csv', ...facultyAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const session = store.sessions.get(req.params.id);
     if (!session || session.institutionId !== req.user!.institutionId) {
@@ -33,7 +34,8 @@ reportRouter.get('/sessions/:id/report.csv', ...facultyAuth, (req: Authenticated
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="lockwatch_session_${session.joinCode}_report.csv"`);
     res.send(csv);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });

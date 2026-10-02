@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { requireAuth, requireRoles, AuthenticatedRequest } from '../middleware/auth.middleware.js';
 import { UserRole } from '@lockwatch/shared-models';
 import { SessionService } from '../services/session.service.js';
@@ -14,7 +14,7 @@ const store = DataStore.getInstance();
 // All routes require FACULTY role
 facultyRouter.use(requireAuth, requireRoles(UserRole.FACULTY, UserRole.INSTITUTION_ADMIN, UserRole.SUPER_ADMIN));
 
-facultyRouter.get('/me', (req: AuthenticatedRequest, res) => {
+facultyRouter.get('/me', (req: AuthenticatedRequest, res: Response) => {
   const faculty = store.findFacultyByUserId(req.user!.userId);
   const institution = store.institutions.get(req.user!.institutionId);
   res.json({
@@ -24,7 +24,7 @@ facultyRouter.get('/me', (req: AuthenticatedRequest, res) => {
   });
 });
 
-facultyRouter.get('/sessions', (req: AuthenticatedRequest, res) => {
+facultyRouter.get('/sessions', (req: AuthenticatedRequest, res: Response) => {
   const instId = req.user!.institutionId;
   const sessions = Array.from(store.sessions.values())
     .filter(s => s.institutionId === instId)
@@ -33,7 +33,7 @@ facultyRouter.get('/sessions', (req: AuthenticatedRequest, res) => {
   res.json(sessions);
 });
 
-facultyRouter.post('/sessions', (req: AuthenticatedRequest, res) => {
+facultyRouter.post('/sessions', (req: AuthenticatedRequest, res: Response) => {
   try {
     const validated = CreateSessionSchema.parse(req.body);
     const faculty = store.findFacultyByUserId(req.user!.userId);
@@ -57,24 +57,26 @@ facultyRouter.post('/sessions', (req: AuthenticatedRequest, res) => {
     });
 
     res.status(201).json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.get('/sessions/:id/live', (req: AuthenticatedRequest, res) => {
+facultyRouter.get('/sessions/:id/live', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const data = sessionService.getSessionLiveDetails(req.params.id);
     if (data.session.institutionId !== req.user!.institutionId) {
       return res.status(403).json({ message: 'Access denied: Multi-tenant boundary violation' });
     }
     res.json(data);
-  } catch (err: any) {
-    res.status(404).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(404).json({ message });
   }
 });
 
-facultyRouter.get('/sessions/:id/readiness', (req: AuthenticatedRequest, res) => {
+facultyRouter.get('/sessions/:id/readiness', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const session = store.sessions.get(req.params.id);
     if (!session || session.institutionId !== req.user!.institutionId) {
@@ -82,12 +84,13 @@ facultyRouter.get('/sessions/:id/readiness', (req: AuthenticatedRequest, res) =>
     }
     const readiness = sessionService.getSessionReadiness(req.params.id);
     res.json(readiness);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.post('/sessions/:id/start', (req: AuthenticatedRequest, res) => {
+facultyRouter.post('/sessions/:id/start', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
@@ -104,12 +107,13 @@ facultyRouter.post('/sessions/:id/start', (req: AuthenticatedRequest, res) => {
     });
 
     res.json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.post('/sessions/:id/pause', (req: AuthenticatedRequest, res) => {
+facultyRouter.post('/sessions/:id/pause', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
@@ -126,12 +130,13 @@ facultyRouter.post('/sessions/:id/pause', (req: AuthenticatedRequest, res) => {
     });
 
     res.json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.post('/sessions/:id/resume', (req: AuthenticatedRequest, res) => {
+facultyRouter.post('/sessions/:id/resume', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
@@ -148,12 +153,13 @@ facultyRouter.post('/sessions/:id/resume', (req: AuthenticatedRequest, res) => {
     });
 
     res.json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.post('/sessions/:id/end', (req: AuthenticatedRequest, res) => {
+facultyRouter.post('/sessions/:id/end', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
     if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
@@ -170,12 +176,13 @@ facultyRouter.post('/sessions/:id/end', (req: AuthenticatedRequest, res) => {
     });
 
     res.json(session);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-facultyRouter.get('/sessions/:id/audit-logs', (req: AuthenticatedRequest, res) => {
+facultyRouter.get('/sessions/:id/audit-logs', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   const session = store.sessions.get(req.params.id);
   if (!session || session.institutionId !== req.user!.institutionId) {
     return res.status(404).json({ message: 'Session not found' });

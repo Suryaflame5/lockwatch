@@ -302,8 +302,9 @@ export class ClassService {
       try {
         this.addStudentToClass(classId, reg.trim());
         added++;
-      } catch (err: any) {
-        failed.push(`${reg}: ${err.message}`);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        failed.push(`${reg}: ${message}`);
       }
     }
 

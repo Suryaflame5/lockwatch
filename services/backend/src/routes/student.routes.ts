@@ -1,6 +1,6 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { requireAuth, requireRoles, AuthenticatedRequest } from '../middleware/auth.middleware.js';
-import { UserRole, CommandStatus, EventType, AlertSeverity } from '@lockwatch/shared-models';
+import { UserRole, StudentStatus, CommandStatus, EventType, AlertSeverity } from '@lockwatch/shared-models';
 import { SessionService } from '../services/session.service.js';
 import { AlertService } from '../services/alert.service.js';
 import { DataStore } from '../store/database.js';
@@ -18,7 +18,7 @@ const store = DataStore.getInstance();
 
 const studentAuth = [requireAuth, requireRoles(UserRole.STUDENT)];
 
-studentRouter.get('/students/me', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.get('/students/me', ...studentAuth, (req: AuthenticatedRequest, res: Response) => {
   const student = store.findStudentByUserId(req.user!.userId);
   if (!student) {
     return res.status(404).json({ message: 'Student profile not found' });
@@ -38,7 +38,7 @@ studentRouter.get('/students/me', ...studentAuth, (req: AuthenticatedRequest, re
   });
 });
 
-studentRouter.post('/sessions/:id/join', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.post('/sessions/:id/join', ...studentAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
@@ -48,12 +48,13 @@ studentRouter.post('/sessions/:id/join', ...studentAuth, (req: AuthenticatedRequ
 
     const result = sessionService.joinSession(student.id, joinCode, deviceId);
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-studentRouter.get('/sessions/:id/status', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.get('/sessions/:id/status', ...studentAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   const student = store.findStudentByUserId(req.user!.userId);
   if (!student) return res.status(403).json({ message: 'Student not found' });
 
@@ -76,7 +77,7 @@ studentRouter.get('/sessions/:id/status', ...studentAuth, (req: AuthenticatedReq
   });
 });
 
-studentRouter.post('/commands/acknowledge', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.post('/commands/acknowledge', ...studentAuth, (req: AuthenticatedRequest, res: Response) => {
   try {
     const validated = CommandAckSchema.parse(req.body);
     const cmd = store.commands.get(validated.commandId);
@@ -91,17 +92,18 @@ studentRouter.post('/commands/acknowledge', ...studentAuth, (req: AuthenticatedR
       const participant = store.findParticipant(validated.sessionId, validated.studentId);
       if (participant) {
         participant.lockVerified = true;
-        participant.status = 'ACTIVE' as any;
+        participant.status = StudentStatus.ACTIVE;
       }
     }
 
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-studentRouter.post('/emergency/request', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.post('/emergency/request', ...studentAuth, (req: AuthenticatedRequest, res: Response) => {
   try {
     const validated = EmergencyActionSchema.parse(req.body);
     const session = store.sessions.get(validated.sessionId);
@@ -124,12 +126,13 @@ studentRouter.post('/emergency/request', ...studentAuth, (req: AuthenticatedRequ
       success: true,
       emergencyDurationSeconds: session.emergencyDurationSeconds || 15
     });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });
 
-studentRouter.post('/emergency/exit', ...studentAuth, (req: AuthenticatedRequest, res) => {
+studentRouter.post('/emergency/exit', ...studentAuth, (req: AuthenticatedRequest, res: Response) => {
   try {
     const validated = EmergencyActionSchema.parse(req.body);
     const session = store.sessions.get(validated.sessionId);
@@ -149,7 +152,8 @@ studentRouter.post('/emergency/exit', ...studentAuth, (req: AuthenticatedRequest
     });
 
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(400).json({ message: err.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
   }
 });

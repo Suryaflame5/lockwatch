@@ -19,7 +19,7 @@ export class PostgresService {
         connectionTimeoutMillis: 10000
       });
 
-      this.pool.on('error', (err) => {
+      this.pool.on('error', (err: Error) => {
         Logger.error('Unexpected error on idle PostgreSQL client', { error: err.message });
       });
     }
@@ -68,10 +68,11 @@ export class PostgresService {
       } finally {
         client.release();
       }
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       return {
         connected: false,
-        error: err.message
+        error: message
       };
     }
   }

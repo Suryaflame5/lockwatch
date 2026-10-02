@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { OtpChallenge, OtpPurpose } from '@lockwatch/shared-models';
 import { DataStore } from '../store/database.js';
 import { Logger } from '../logger.js';

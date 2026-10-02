@@ -1,6 +1,7 @@
 import { DataStore } from '../store/database.js';
 import {
   SessionEvent,
+  SessionParticipant,
   EventType,
   StudentStatus,
   AlertSeverity
@@ -55,7 +56,7 @@ export class EventService {
     return { processed, duplicates };
   }
 
-  private updateParticipantStateFromEvent(participant: any, event: SessionEvent) {
+  private updateParticipantStateFromEvent(participant: SessionParticipant, event: SessionEvent) {
     const student = this.store.students.get(event.studentId);
     const studentName = student ? student.name : 'Student';
 

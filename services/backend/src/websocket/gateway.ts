@@ -1,8 +1,9 @@
-import { WebSocketServer, WebSocket } from 'ws';
-import http from 'http';
+import WebSocket, { WebSocketServer } from 'ws';
+import type http from 'node:http';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { Logger } from '../logger.js';
+import type { TokenPayload } from '../services/auth.service.js';
 
 interface ClientSocket extends WebSocket {
   isAlive: boolean;
@@ -42,7 +43,7 @@ export class WebSocketGateway {
       }
 
       try {
-        const decoded = jwt.verify(token, config.jwtSecret) as any;
+        const decoded = jwt.verify(token, config.jwtSecret) as TokenPayload;
         ws.userId = decoded.userId;
         ws.role = decoded.role;
         ws.sessionId = sessionId || undefined;
@@ -55,7 +56,7 @@ export class WebSocketGateway {
           ws.isAlive = true;
         });
 
-        ws.on('message', (message: string) => {
+        ws.on('message', (message: WebSocket.RawData) => {
           try {
             const data = JSON.parse(message.toString());
             this.handleClientMessage(ws, data);
@@ -109,7 +110,7 @@ export class WebSocketGateway {
     }
   }
 
-  private handleClientMessage(ws: ClientSocket, data: any) {
+  private handleClientMessage(ws: ClientSocket, data: { action?: string; sessionId?: string }) {
     if (data.action === 'join_session' && data.sessionId) {
       if (ws.sessionId) {
         this.leaveSessionRoom(ws.sessionId, ws);

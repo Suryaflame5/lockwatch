@@ -14,7 +14,7 @@ export class HeartbeatService {
   private store = DataStore.getInstance();
   private alertService = new AlertService();
   private wsGateway = WebSocketGateway.getInstance();
-  private monitorInterval?: NodeJS.Timeout;
+  private monitorInterval?: ReturnType<typeof setInterval>;
 
   public startHeartbeatMonitor() {
     if (this.monitorInterval) return;

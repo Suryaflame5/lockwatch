@@ -1,5 +1,5 @@
-import express from 'express';
-import http from 'http';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import http from 'node:http';
 import cors from 'cors';
 import { config } from './config.js';
 import { Logger } from './logger.js';
@@ -27,7 +27,7 @@ app.use(cors({
 app.use(express.json({ limit: '5mb' }));
 
 // Request logging middleware
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   res.on('finish', () => {
     Logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${Date.now() - start}ms`, {

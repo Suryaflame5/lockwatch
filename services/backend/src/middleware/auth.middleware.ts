@@ -4,7 +4,12 @@ import { config } from '../config.js';
 import { UserRole } from '@lockwatch/shared-models';
 import { TokenPayload } from '../services/auth.service.js';
 
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest<
+  P = Record<string, string>,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = Record<string, any>
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
   user?: TokenPayload;
 }
 

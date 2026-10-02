@@ -22,7 +22,7 @@ import { Logger } from '../logger.js';
 export class SessionService {
   private store = DataStore.getInstance();
   private wsGateway = WebSocketGateway.getInstance();
-  private sessionTimers = new Map<string, NodeJS.Timeout>();
+  private sessionTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   public createSession(data: {
     facultyId: string;
@@ -62,8 +62,7 @@ export class SessionService {
     };
 
     this.store.sessions.set(id, session);
-    // Index join code
-    (this.store as any).sessionJoinCodeIndex.set(joinCode, id);
+    this.store.indexSessionJoinCode(joinCode, id);
 
     Logger.info('Session created', {
       sessionId: id,
