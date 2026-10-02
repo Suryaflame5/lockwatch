@@ -43,8 +43,33 @@ interface FacultyAuthContextType {
 
 const FacultyAuthContext = createContext<FacultyAuthContextType | undefined>(undefined);
 
+const PRODUCTION_API_URL = 'https://lockwatch.onrender.com';
+
+const getInitialBaseUrl = (): string => {
+  // Explicit environment variable takes precedence
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // Production release builds must strictly use public production backend
+  if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('lockwatch_faculty_server_url');
+      if (saved && (saved.includes('localhost') || saved.includes('127.0.0.1') || saved.includes('10.0.2.2'))) {
+        localStorage.removeItem('lockwatch_faculty_server_url');
+      }
+    }
+    return PRODUCTION_API_URL;
+  }
+  // Development fallback
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem('lockwatch_faculty_server_url');
+    if (saved) return saved;
+  }
+  return 'http://localhost:4000';
+};
+
 export const apiClient = new LockWatchApiClient({
-  baseUrl: 'http://localhost:4000',
+  baseUrl: getInitialBaseUrl(),
   storage: {
     getItem: (key) => typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null,
     setItem: (key, val) => {

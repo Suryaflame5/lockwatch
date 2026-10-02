@@ -67,6 +67,13 @@ export class LockWatchApiClient {
     return this.baseUrl;
   }
 
+  public getWsUrl(path: string = '/ws'): string {
+    const wsProto = this.baseUrl.startsWith('https') ? 'wss' : 'ws';
+    const host = this.baseUrl.replace(/^https?:\/\//, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${wsProto}://${host}${cleanPath}`;
+  }
+
   private async initTokens() {
     this.accessToken = await this.storage.getItem('lockwatch_access_token');
     this.refreshToken = await this.storage.getItem('lockwatch_refresh_token');

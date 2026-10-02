@@ -13,7 +13,8 @@
     "build:backend": "npm run build --workspace=@lockwatch/backend",
     "build:faculty-mobile": "npm run build --workspace=@lockwatch/faculty-mobile",
     "build:student-mobile": "npm run build --workspace=@lockwatch/student-mobile",
-    "build": "npm run build:packages && npm run build:backend && npm run build:faculty-mobile && npm run build:student-mobile",
+    "build": "npm run build:packages && npm run build:backend",
+    "build:all": "npm run build:packages && npm run build:backend && npm run build:faculty-mobile && npm run build:student-mobile",
     "start": "npm run start:backend",
     "start:backend": "node services/backend/dist/index.js",
     "start:worker": "node services/backend/dist/worker.js",
@@ -24,6 +25,7 @@
     "dev:student": "npm run dev --workspace=@lockwatch/student-mobile"
   },
   "devDependencies": {
+    "@types/node": "^20.12.12",
     "typescript": "^5.4.5"
   }
 }
