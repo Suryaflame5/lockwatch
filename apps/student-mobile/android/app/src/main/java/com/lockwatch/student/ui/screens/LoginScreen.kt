@@ -1,9 +1,12 @@
 package com.lockwatch.student.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.res.painterResource
+import com.lockwatch.student.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
@@ -56,27 +59,29 @@ fun StudentLoginScreen(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Shield,
-                    contentDescription = "LockWatch Security",
-                    tint = EmeraldGreen,
-                    modifier = Modifier.size(48.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.lockwatch_logo_dark),
+                    contentDescription = "LockWatch",
+                    modifier = Modifier
+                        .height(48.dp)
+                        .fillMaxWidth(0.85f)
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "LOCKWATCH STUDENT",
-                    color = TextPrimary,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "STUDENT PORTAL",
+                    color = TextSecondary,
+                    fontSize = 12.sp,
+                    letterSpacing = 2.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 Text(
                     text = "Authoritative Native Examination Kiosk",
                     color = TextSecondary,
                     fontSize = 13.sp,
-                    modifier = Modifier.padding(bottom = 20.dp)
+                    modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
                 )
 
                 if (errorMessage != null) {

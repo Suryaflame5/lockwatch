@@ -1,8 +1,11 @@
 package com.lockwatch.student.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.res.painterResource
+import com.lockwatch.student.R
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,18 +65,26 @@ fun StudentHomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(
-                            text = user.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = TextPrimary
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.lockwatch_mark_dark),
+                            contentDescription = "LockWatch",
+                            modifier = Modifier.size(28.dp)
                         )
-                        Text(
-                            text = user.studentProfile?.registerNumber ?: "Student",
-                            fontSize = 12.sp,
-                            color = TextSecondary
-                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = user.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = user.studentProfile?.registerNumber ?: "Student",
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
+                        }
                     }
                 },
                 actions = {

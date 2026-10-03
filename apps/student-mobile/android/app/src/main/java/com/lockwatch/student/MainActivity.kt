@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var securityController: SecurityController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_LockWatch_Main)
         super.onCreate(savedInstanceState)
 
         apiClient = StudentApiClient(applicationContext)

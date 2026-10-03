@@ -16,7 +16,7 @@
         android:allowBackup="false"
         android:testOnly="false"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:theme="@style/Theme.LockWatch.Splash">
 
         <activity
             android:name=".MainActivity"

@@ -1,8 +1,11 @@
 package com.lockwatch.student.ui.screens
 
 import android.app.Activity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.res.painterResource
+import com.lockwatch.student.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -49,11 +52,10 @@ fun ReadinessScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(20.dp))
-            Icon(
-                imageVector = Icons.Default.VerifiedUser,
-                contentDescription = null,
-                tint = EmeraldGreen,
-                modifier = Modifier.size(56.dp)
+            Image(
+                painter = painterResource(id = R.drawable.lockwatch_mark_dark),
+                contentDescription = "LockWatch",
+                modifier = Modifier.size(52.dp)
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
