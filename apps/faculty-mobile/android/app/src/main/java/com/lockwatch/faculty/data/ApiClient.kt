@@ -28,16 +28,21 @@ object FacultyApiClient {
 
     fun login(email: String, password: String): LoginResponse {
         val body = JSONObject().apply {
-            put("email", email)
-            put("password", password)
+            put("identifier", email.trim())
+            if (password.length == 6 && password.all { it.isDigit() }) {
+                put("pin", password)
+            } else {
+                put("password", password)
+            }
+            put("institutionCode", "TECH-UNI")
         }.toString().toRequestBody(JSON)
         val req = Request.Builder().url("$BASE_URL/auth/faculty/login").post(body).build()
         client.newCall(req).execute().use { resp ->
             if (!resp.isSuccessful) throw IOException("Login failed: ${resp.code}")
             val json = JSONObject(resp.body!!.string())
             val userJ = json.getJSONObject("user")
-            val facJ = json.getJSONObject("faculty")
-            val instJ = json.getJSONObject("institution")
+            val facJ = if (json.has("faculty")) json.getJSONObject("faculty") else userJ.getJSONObject("facultyProfile")
+            val instJ = if (json.has("institution")) json.getJSONObject("institution") else userJ.getJSONObject("institution")
             val user = User(
                 userJ.getString("id"),
                 userJ.getString("name"),
@@ -69,13 +74,14 @@ object FacultyApiClient {
             val arr = JSONArray(resp.body!!.string())
             return (0 until arr.length()).map {
                 val j = arr.getJSONObject(it)
+                val joinCodeVal = if (j.has("joinCode")) j.getString("joinCode") else j.optString("classCode", "")
                 AcademicClass(
                     id = j.getString("id"),
                     name = j.getString("name"),
                     subject = j.getString("subject"),
                     section = j.optString("section").takeIf { s -> s.isNotEmpty() },
-                    joinCode = j.getString("joinCode"),
-                    facultyId = j.getString("facultyId"),
+                    joinCode = joinCodeVal,
+                    facultyId = j.optString("facultyId", j.optString("createdBy", "")),
                     institutionId = j.getString("institutionId"),
                     studentCount = j.optInt("studentCount", 0)
                 )
