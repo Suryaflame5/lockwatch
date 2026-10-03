@@ -56,7 +56,7 @@ fun SessionEndedScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "The faculty ended the examination session. Native Lock Task kiosk mode has been safely released.",
+                    text = "The examination session has ended. Device security has been released.",
                     color = TextSecondary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp,

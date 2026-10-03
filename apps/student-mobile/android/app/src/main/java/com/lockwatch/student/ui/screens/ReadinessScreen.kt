@@ -74,7 +74,7 @@ fun ReadinessScreen(
             // Check item cards
             CheckItemCard(
                 title = "Android Device Owner Provisioning",
-                subtitle = if (isDeviceOwner) "Device Owner active (authoritative managed kiosk)" else "Managed provisioning status required",
+                subtitle = if (isDeviceOwner) "Device Owner active (Managed Device)" else "Managed provisioning status required",
                 passed = isDeviceOwner
             )
             Spacer(modifier = Modifier.height(10.dp))

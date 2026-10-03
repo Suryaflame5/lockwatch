@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">LockWatch Student</string>
     <string name="device_admin_label">LockWatch Student Device Admin</string>
-    <string name="device_admin_description">LockWatch Device Administration policy for kiosk lockdown and exam integrity enforcement.</string>
+    <string name="device_admin_description">LockWatch Device Administration policy for exam integrity enforcement.</string>
 </resources>

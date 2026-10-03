@@ -154,7 +154,7 @@ fun StudentHomeScreen(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Engage Hardware Kiosk Lockdown", fontWeight = FontWeight.Bold)
+                            Text("Start Examination", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
