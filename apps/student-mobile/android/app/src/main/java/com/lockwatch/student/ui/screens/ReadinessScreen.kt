@@ -130,7 +130,7 @@ fun ReadinessScreen(
                     }
                 },
                 enabled = allChecksPass && !isStarting,
-                colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen, contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -171,7 +171,7 @@ private fun CheckItemCard(title: String, subtitle: String, passed: Boolean) {
             Icon(
                 imageVector = if (passed) Icons.Default.CheckCircle else Icons.Default.Warning,
                 contentDescription = null,
-                tint = if (passed) EmeraldGreen else AmberWarning,
+                tint = if (passed) BrandWhite else AmberWarning,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))

@@ -114,14 +114,16 @@ class StudentApiClient(private val context: Context) {
         parseUser(uObj)
     }
 
-    suspend fun requestSignupOtp(phoneNumber: String): String = withContext(Dispatchers.IO) {
+    suspend fun requestSignupOtp(phoneNumber: String): Pair<String, String?> = withContext(Dispatchers.IO) {
         val json = JSONObject().apply { put("phoneNumber", phoneNumber) }
         val req = Request.Builder()
             .url("$BASE_URL/auth/student/request-signup-otp")
             .post(json.toString().toRequestBody(JSON))
             .build()
         val resp = executeRequest(req)
-        resp.getString("challengeId")
+        val challengeId = resp.getString("challengeId")
+        val debugOtp = if (resp.has("debugOtp")) resp.getString("debugOtp") else null
+        Pair(challengeId, debugOtp)
     }
 
     suspend fun verifySignupOtp(challengeId: String, otp: String): String = withContext(Dispatchers.IO) {

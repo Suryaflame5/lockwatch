@@ -6,22 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 val BgDark = Color(0xFF0A0D14)
-val SurfaceDark = Color(0xFF111827)
-val CardDark = Color(0xFF1F2937)
-val BorderDark = Color(0xFF374151)
-val EmeraldGreen = Color(0xFF10B981)
-val EmeraldLight = Color(0xFF34D399)
-val CrimsonRed = Color(0xFFEF4444)
-val AmberWarning = Color(0xFFF59E0B)
-val TextPrimary = Color(0xFFF8FAFC)
-val TextSecondary = Color(0xFF94A3B8)
+val SurfaceDark = Color(0xFF161B22)
+val CardDark = Color(0xFF21262D)
+val BorderDark = Color(0xFF30363D)
+val BrandWhite = Color(0xFFFFFFFF)
+val BrandGrayLight = Color(0xFFD0D7DE)
+val BrandGray = Color(0xFF8B949E)
+val CrimsonRed = Color(0xFFF85149)
+val AmberWarning = Color(0xFFD29922)
+val TextPrimary = Color(0xFFF0F6FC)
+val TextSecondary = Color(0xFF8B949E)
 
 private val DarkColorScheme = darkColorScheme(
-    primary = EmeraldGreen,
+    primary = BrandWhite,
     onPrimary = Color.Black,
     primaryContainer = SurfaceDark,
-    onPrimaryContainer = EmeraldLight,
-    secondary = AmberWarning,
+    onPrimaryContainer = BrandWhite,
+    secondary = BrandGray,
     onSecondary = Color.Black,
     error = CrimsonRed,
     onError = Color.White,

@@ -40,7 +40,7 @@ fun SessionEndedScreen(
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
-                    tint = EmeraldGreen,
+                    tint = BrandWhite,
                     modifier = Modifier.size(64.dp)
                 )
 
@@ -67,7 +67,7 @@ fun SessionEndedScreen(
 
                 Button(
                     onClick = onReturnHome,
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .fillMaxWidth()

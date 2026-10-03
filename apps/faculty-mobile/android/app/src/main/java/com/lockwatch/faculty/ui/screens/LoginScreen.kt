@@ -3,12 +3,17 @@ package com.lockwatch.faculty.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lockwatch.faculty.ui.*
@@ -23,6 +28,7 @@ fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
     val scope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
@@ -34,7 +40,7 @@ fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("LockWatch", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = RoyalBlue)
+        Text("LockWatch", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = BrandWhite)
         Text("Faculty Portal", fontSize = 16.sp, color = TextSecondary)
         Spacer(Modifier.height(48.dp))
 
@@ -58,8 +64,9 @@ fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = TextPrimary,
                         unfocusedTextColor = TextPrimary,
-                        focusedBorderColor = RoyalBlue,
-                        unfocusedBorderColor = TextSecondary
+                        focusedBorderColor = BrandWhite,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedLabelColor = BrandWhite
                     )
                 )
 
@@ -67,14 +74,24 @@ fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password", color = TextSecondary) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff,
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                                tint = BrandGray
+                            )
+                        }
+                    },
+                    visualTransformation = if (isPasswordVisible) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = TextPrimary,
                         unfocusedTextColor = TextPrimary,
-                        focusedBorderColor = RoyalBlue,
-                        unfocusedBorderColor = TextSecondary
+                        focusedBorderColor = BrandWhite,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedLabelColor = BrandWhite
                     )
                 )
 
@@ -101,12 +118,12 @@ fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
                         .fillMaxWidth()
                         .height(50.dp),
                     enabled = !loading && email.isNotBlank() && password.isNotBlank(),
-                    colors = ButtonDefaults.buttonColors(containerColor = RoyalBlue)
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black)
                 ) {
                     if (loading) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = TextPrimary, strokeWidth = 2.dp)
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black, strokeWidth = 2.dp)
                     } else {
-                        Text("Sign In", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                        Text("Sign In", color = Color.Black, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }

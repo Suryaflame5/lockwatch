@@ -101,7 +101,7 @@ fun StudentHomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showJoinDialog = true },
-                containerColor = EmeraldGreen,
+                containerColor = BrandWhite,
                 contentColor = Color.Black
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Join Class")
@@ -150,7 +150,7 @@ fun StudentHomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(
                             onClick = { onStartExam(liveSession) },
-                            colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen, contentColor = Color.Black),
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -170,7 +170,7 @@ fun StudentHomeScreen(
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = EmeraldGreen)
+                    CircularProgressIndicator(color = BrandWhite)
                 }
             } else if (classes.isEmpty()) {
                 Box(
@@ -207,12 +207,12 @@ fun StudentHomeScreen(
                                         color = TextPrimary
                                     )
                                     Surface(
-                                        color = EmeraldGreen.copy(alpha = 0.15f),
+                                        color = CardDark,
                                         shape = RoundedCornerShape(6.dp)
                                     ) {
                                         Text(
                                             text = cls.classCode,
-                                            color = EmeraldGreen,
+                                            color = BrandWhite,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -250,7 +250,7 @@ fun StudentHomeScreen(
                         label = { Text("Class Code (e.g. CS601)") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = EmeraldGreen,
+                            focusedBorderColor = BrandWhite,
                             unfocusedBorderColor = BorderDark,
                             focusedTextColor = TextPrimary,
                             unfocusedTextColor = TextPrimary
@@ -259,7 +259,7 @@ fun StudentHomeScreen(
                     )
                     if (joinMessage != null) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(joinMessage ?: "", color = EmeraldGreen, fontSize = 12.sp)
+                        Text(joinMessage ?: "", color = BrandWhite, fontSize = 12.sp)
                     }
                 }
             },
@@ -288,7 +288,7 @@ fun StudentHomeScreen(
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black),
                     enabled = !isJoining
                 ) {
                     Text("Join Class", fontWeight = FontWeight.Bold)

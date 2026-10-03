@@ -120,7 +120,7 @@ fun ActiveSessionScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Surface(
-                color = if (isEmergencyActive) CrimsonRed.copy(alpha = 0.2f) else EmeraldGreen.copy(alpha = 0.15f),
+                color = if (isEmergencyActive) CrimsonRed.copy(alpha = 0.2f) else CardDark,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
@@ -130,13 +130,13 @@ fun ActiveSessionScreen(
                     Icon(
                         imageVector = if (isEmergencyActive) Icons.Default.Warning else Icons.Default.Shield,
                         contentDescription = null,
-                        tint = if (isEmergencyActive) CrimsonRed else EmeraldGreen,
+                        tint = if (isEmergencyActive) CrimsonRed else BrandWhite,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = if (isEmergencyActive) "EMERGENCY BREAKOUT: ${emergencySecondsRemaining}s" else "OS HARDWARE LOCKDOWN ACTIVE",
-                        color = if (isEmergencyActive) CrimsonRed else EmeraldGreen,
+                        color = if (isEmergencyActive) CrimsonRed else BrandWhite,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
                     )
@@ -172,7 +172,7 @@ fun ActiveSessionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Battery Integrity", color = TextSecondary, fontSize = 13.sp)
-                        Text("$batteryPercentage%", color = if (batteryPercentage > 20) EmeraldGreen else CrimsonRed, fontWeight = FontWeight.Bold)
+                        Text("$batteryPercentage%", color = if (batteryPercentage > 20) BrandWhite else CrimsonRed, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -180,7 +180,7 @@ fun ActiveSessionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("OS Lock Task State", color = TextSecondary, fontSize = 13.sp)
-                        Text(if (isLocked) "LOCKED (Hardware Verified)" else "STANDBY", color = if (isLocked) EmeraldGreen else AmberWarning, fontWeight = FontWeight.Bold)
+                        Text(if (isLocked) "LOCKED (Hardware Verified)" else "STANDBY", color = if (isLocked) BrandWhite else AmberWarning, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -228,7 +228,7 @@ fun ActiveSessionScreen(
                     onClick = {
                         emergencySecondsRemaining = 0
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandWhite, contentColor = Color.Black),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .fillMaxWidth()
