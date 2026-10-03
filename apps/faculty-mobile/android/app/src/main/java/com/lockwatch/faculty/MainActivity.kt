@@ -12,6 +12,7 @@ enum class FacultyScreen { LOGIN, DASHBOARD, CLASS_DETAIL, LIVE_MONITOR }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_LockWatch_Main)
         super.onCreate(savedInstanceState)
         setContent {
             LockWatchFacultyTheme {
