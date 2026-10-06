@@ -214,12 +214,14 @@ class StudentApiClient(private val context: Context) {
         list
     }
 
-    suspend fun joinClassByCode(code: String, displayName: String?, regNumber: String?, deviceId: String): String = withContext(Dispatchers.IO) {
+    suspend fun joinClassByCode(code: String, displayName: String?, regNumber: String?, deviceId: String? = null): String = withContext(Dispatchers.IO) {
         val json = JSONObject().apply {
-            put("classCode", code)
-            displayName?.let { put("displayName", it) }
-            regNumber?.let { put("registerNumber", it) }
-            put("deviceId", deviceId)
+            put("classCode", code.trim().uppercase())
+            displayName?.takeIf { it.isNotBlank() }?.let { put("displayName", it) }
+            regNumber?.takeIf { it.isNotBlank() }?.let { put("registerNumber", it) }
+            if (!deviceId.isNullOrBlank() && deviceId != "native-android-device") {
+                put("deviceId", deviceId)
+            }
         }
         val req = newRequestBuilder("/students/classes/join-code")
             .post(json.toString().toRequestBody(JSON))
@@ -228,12 +230,14 @@ class StudentApiClient(private val context: Context) {
         resp.optString("message", "Successfully enrolled in class")
     }
 
-    suspend fun joinClassByQr(token: String, displayName: String?, regNumber: String?, deviceId: String): String = withContext(Dispatchers.IO) {
+    suspend fun joinClassByQr(token: String, displayName: String?, regNumber: String?, deviceId: String? = null): String = withContext(Dispatchers.IO) {
         val json = JSONObject().apply {
-            put("qrToken", token)
-            displayName?.let { put("displayName", it) }
-            regNumber?.let { put("registerNumber", it) }
-            put("deviceId", deviceId)
+            put("qrToken", token.trim())
+            displayName?.takeIf { it.isNotBlank() }?.let { put("displayName", it) }
+            regNumber?.takeIf { it.isNotBlank() }?.let { put("registerNumber", it) }
+            if (!deviceId.isNullOrBlank() && deviceId != "native-android-device") {
+                put("deviceId", deviceId)
+            }
         }
         val req = newRequestBuilder("/students/classes/join-qr")
             .post(json.toString().toRequestBody(JSON))

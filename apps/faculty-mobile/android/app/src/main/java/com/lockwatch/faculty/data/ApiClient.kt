@@ -39,7 +39,15 @@ object FacultyApiClient {
         }.toString().toRequestBody(JSON)
         val req = Request.Builder().url("$BASE_URL/auth/faculty/login").post(body).build()
         client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) throw IOException("Login failed: ${resp.code}")
+            if (!resp.isSuccessful) {
+                val errBody = resp.body?.string() ?: ""
+                val msg = try {
+                    JSONObject(errBody).optString("message", "Login failed: ${resp.code}")
+                } catch (e: Exception) {
+                    "Login failed: ${resp.code}"
+                }
+                throw IOException(msg)
+            }
             val json = JSONObject(resp.body!!.string())
             val userJ = json.getJSONObject("user")
             val facJ = if (json.has("faculty")) json.getJSONObject("faculty") else userJ.getJSONObject("facultyProfile")

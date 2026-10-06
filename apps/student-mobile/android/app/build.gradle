@@ -18,9 +18,9 @@ android {
             def keystoreFile = System.getenv("ANDROID_KEYSTORE_FILE") ?: "lockwatch-release.keystore"
             if (file(keystoreFile).exists()) {
                 storeFile file(keystoreFile)
-                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
-                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
-                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "lockwatch2026"
+                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: "lockwatch-release-key"
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: "lockwatch2026"
             }
         }
     }

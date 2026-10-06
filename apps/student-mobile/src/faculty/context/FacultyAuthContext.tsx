@@ -136,6 +136,19 @@ export const FacultyAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     await fetchSessions();
   };
 
+  // Real-time synchronization of classes, sessions, and active roster
+  useEffect(() => {
+    if (!user || !faculty) return;
+    const interval = setInterval(() => {
+      fetchClasses();
+      fetchSessions();
+      if (activeClass?.id) {
+        fetchRoster(activeClass.id);
+      }
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [user?.id, faculty?.id, activeClass?.id]);
+
   const logout = () => {
     apiClient.logout();
     if (typeof localStorage !== 'undefined') {

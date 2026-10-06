@@ -26,8 +26,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun FacultyLoginScreen(onLoginSuccess: (LoginResponse) -> Unit) {
     val scope = rememberCoroutineScope()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("faculty@apextech.edu") }
+    var password by remember { mutableStateOf("FacultyPassword123!") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf<String?>(null) }

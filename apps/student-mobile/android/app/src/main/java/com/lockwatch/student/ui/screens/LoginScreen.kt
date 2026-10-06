@@ -45,8 +45,8 @@ fun StudentLoginScreen(
     var authMode by remember { mutableStateOf(AuthMode.SIGN_IN) }
 
     // Sign In states
-    var identifier by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var identifier by remember { mutableStateOf("+919876543210") }
+    var password by remember { mutableStateOf("StudentPassword123!") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var institutionCode by remember { mutableStateOf("TECH-UNI") }
 

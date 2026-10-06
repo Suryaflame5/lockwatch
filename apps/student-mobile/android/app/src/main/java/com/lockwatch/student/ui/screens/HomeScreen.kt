@@ -271,7 +271,7 @@ fun StudentHomeScreen(
                         joinMessage = null
                         coroutineScope.launch {
                             try {
-                                val devId = user.device?.id ?: "native-android-device"
+                                val devId = user.device?.id?.takeIf { it.isNotBlank() && it != "native-android-device" }
                                 val msg = apiClient.joinClassByCode(
                                     code = classCodeInput.trim(),
                                     displayName = user.name,
@@ -279,6 +279,7 @@ fun StudentHomeScreen(
                                     deviceId = devId
                                 )
                                 joinMessage = msg
+                                classCodeInput = ""
                                 refreshClasses()
                                 showJoinDialog = false
                             } catch (e: Exception) {

@@ -12,7 +12,7 @@ ON CONFLICT (code) DO NOTHING;
 
 -- Faculty User
 INSERT INTO users (id, institution_id, role, email, password_hash, pin_hash, name, is_active) VALUES
-('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'FACULTY', 'faculty@apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', '$2a$10$3cTqQZ6kG8.t871Qp1eC2uX2aQv5J6KzL0mN9oP8qR7sT6uV5wXyZ', 'Dr. Rajesh Raman', TRUE)
+('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'FACULTY', 'faculty@apextech.edu', '$2a$10$HGJQIKr/3.JtgowNECY05.oCIYnzka9aKAD20OsO8BRzP6uzt/X62', '$2a$10$9eJWxYAFlKWpgkHRxywRIOcJf7HPmoMizdm.J143NX80/lqfNOfuC', 'Dr. Rajesh Raman', TRUE)
 ON CONFLICT (institution_id, email) DO NOTHING;
 
 INSERT INTO faculty (id, user_id, institution_id, faculty_id_number, department, designation) VALUES
@@ -21,12 +21,12 @@ ON CONFLICT (institution_id, faculty_id_number) DO NOTHING;
 
 -- Students
 INSERT INTO users (id, institution_id, role, email, password_hash, name, is_active) VALUES
-('44444444-4444-4444-4444-444444444001', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'arun.k@student.apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Arun Kumar', TRUE),
-('44444444-4444-4444-4444-444444444002', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'priya.s@student.apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Priya Sundaram', TRUE),
-('44444444-4444-4444-4444-444444444003', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'karthik.r@student.apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Karthik Raja', TRUE),
-('44444444-4444-4444-4444-444444444004', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'deepa.m@student.apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Deepa Murugan', TRUE),
-('44444444-4444-4444-4444-444444444005', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'vijay.v@student.apextech.edu', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Vijay Venkat', TRUE),
-('44444444-4444-4444-4444-444444444999', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'suryaflame2007@gmail.com', '$2a$10$wT55h41h/g2kGqWdkl5u9eT32gKzJ4qL6lXj8t7tZ6b1fG3f4E2jG', 'Surya', TRUE)
+('44444444-4444-4444-4444-444444444001', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'arun.k@student.apextech.edu', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Arun Kumar', TRUE),
+('44444444-4444-4444-4444-444444444002', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'priya.s@student.apextech.edu', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Priya Sundaram', TRUE),
+('44444444-4444-4444-4444-444444444003', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'karthik.r@student.apextech.edu', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Karthik Raja', TRUE),
+('44444444-4444-4444-4444-444444444004', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'deepa.m@student.apextech.edu', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Deepa Murugan', TRUE),
+('44444444-4444-4444-4444-444444444005', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'vijay.v@student.apextech.edu', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Vijay Venkat', TRUE),
+('44444444-4444-4444-4444-444444444999', '11111111-1111-1111-1111-111111111111', 'STUDENT', 'suryaflame2007@gmail.com', '$2a$10$aAHO/FiiFzuCtpFJVrY6Q.Ehb5nz6ZFIc6YQ1aFsJ2WS.Srk8SRWe', 'Surya', TRUE)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO students (id, user_id, institution_id, register_number, department, class_name) VALUES

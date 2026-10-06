@@ -120,13 +120,30 @@ export const StudentAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setEnrolledClasses(classes);
       // Auto-detect active session if present in one of the enrolled classes
       const live = classes.find(c => c.activeSession && (c.activeSession.status === 'ACTIVE' || c.activeSession.status === 'READY'));
-      if (live && !activeSession) {
+      if (live) {
         setActiveSession(live.activeSession);
+      } else {
+        setActiveSession((prev: any) => {
+          if (prev && (prev.status === 'ACTIVE' || prev.status === 'READY')) {
+            const stillLive = classes.some(c => c.activeSession?.id === prev.id);
+            return stillLive ? prev : null;
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error('Failed to fetch student classes', err);
     }
   };
+
+  // Real-time synchronization of enrolled classes & active sessions
+  useEffect(() => {
+    if (!user || !student) return;
+    const interval = setInterval(() => {
+      fetchStudentClasses();
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [user?.id, student?.id]);
 
   useEffect(() => {
     const initAuth = async () => {
