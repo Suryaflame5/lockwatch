@@ -183,6 +183,18 @@ classRouter.get('/:id/report', (req: AuthenticatedRequest<{ id: string }>, res: 
   }
 });
 
+classRouter.get('/:id/sessions', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
+  try {
+    const sessions = Array.from(store.sessions.values())
+      .filter(s => s.classId === req.params.id)
+      .sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime());
+    res.json(sessions);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
+  }
+});
+
 classRouter.post('/:id/sessions', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
   try {
     const faculty = store.findFacultyByUserId(req.user!.userId);
