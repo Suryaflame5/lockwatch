@@ -33,7 +33,11 @@ classRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
     if (!faculty) return res.status(403).json({ message: 'Faculty profile not found' });
 
     const classes = classService.getFacultyClasses(faculty.id);
-    res.json(classes);
+    res.json(classes.map(cls => ({
+      ...cls,
+      joinCode: cls.classCode,
+      facultyId: cls.createdBy
+    })));
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     res.status(500).json({ message });
@@ -56,7 +60,11 @@ classRouter.post('/', (req: AuthenticatedRequest, res: Response) => {
       result: 'SUCCESS'
     });
 
-    res.status(201).json(newClass);
+    res.status(201).json({
+      ...newClass,
+      joinCode: newClass.classCode,
+      facultyId: newClass.createdBy
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     res.status(400).json({ message });
