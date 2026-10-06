@@ -21,6 +21,8 @@ import {
 import { WebSocketGateway } from '../websocket/gateway.js';
 import { Logger } from '../logger.js';
 import { PostgresSync } from '../store/postgres-sync.js';
+import { PostgresService } from '../store/postgres.js';
+
 
 export class ClassService {
   private store = DataStore.getInstance();
@@ -502,13 +504,53 @@ export class ClassService {
     return session;
   }
 
-  public joinClassByCode(
+  public async joinClassByCode(
     studentId: string,
     classCode: string,
     academicIdentity?: { displayName?: string; registerNumber?: string }
-  ): { class: Class; membership: ClassMembership; message: string } {
+  ): Promise<{ class: Class; membership: ClassMembership; message: string }> {
     const cleanCode = classCode.trim().toUpperCase();
-    const cls = this.store.findClassByCode(cleanCode) || this.store.findClassByCode(classCode.trim());
+    let cls = this.store.findClassByCode(cleanCode) || this.store.findClassByCode(classCode.trim());
+
+    // Fallback: live lookup from PostgreSQL if not in memory cache
+    if (!cls) {
+      try {
+        const pg = PostgresService.getInstance();
+        const res = await pg.query(
+          "SELECT * FROM classes WHERE UPPER(class_code) = $1 AND status != 'ARCHIVED'",
+          [cleanCode]
+        );
+        if (res.rows.length > 0) {
+          const r = res.rows[0];
+          cls = {
+            id: r.id,
+            institutionId: r.institution_id,
+            createdBy: r.created_by,
+            name: r.name,
+            subject: r.subject,
+            department: r.department,
+            year: r.year,
+            semester: r.semester,
+            section: r.section,
+            description: r.description,
+            classCode: r.class_code,
+            status: r.status,
+            startTime: r.start_time,
+            endTime: r.end_time,
+            activeSessionId: null,
+            createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+            updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : new Date().toISOString()
+          } as Class;
+          // Cache in memory for future lookups
+          this.store.classes.set(cls.id, cls);
+          this.store.indexClassCode(cls.classCode, cls.id);
+          Logger.info(`Class ${cls.classCode} loaded from PostgreSQL fallback into memory cache.`);
+        }
+      } catch (err: any) {
+        Logger.warn('PostgreSQL fallback class lookup failed', { error: err.message });
+      }
+    }
+
     if (!cls) {
       throw new Error(`That class code is invalid or has expired.`);
     }
@@ -593,11 +635,11 @@ export class ClassService {
     };
   }
 
-  public joinClassByQr(
+  public async joinClassByQr(
     studentId: string,
     qrToken: string,
     academicIdentity?: { displayName?: string; registerNumber?: string }
-  ): { class: Class; membership: ClassMembership; message: string } {
+  ): Promise<{ class: Class; membership: ClassMembership; message: string }> {
     const tokenRecord = this.store.classJoinTokens.get(qrToken);
     if (!tokenRecord) {
       throw new Error('Invalid or expired QR token');
@@ -612,7 +654,7 @@ export class ClassService {
     }
 
     const cls = this.getClassById(tokenRecord.classId);
-    const result = this.joinClassByCode(studentId, cls.classCode, academicIdentity);
+    const result = await this.joinClassByCode(studentId, cls.classCode, academicIdentity);
     if (result.membership) {
       result.membership.joinMethod = ClassJoinMethod.QR;
     }

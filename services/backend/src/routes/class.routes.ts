@@ -259,13 +259,13 @@ studentClassRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-studentClassRouter.post('/join-code', (req: AuthenticatedRequest, res: Response) => {
+studentClassRouter.post('/join-code', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
 
     const validated = JoinClassCodeSchema.parse(req.body);
-    const result = classService.joinClassByCode(student.id, validated.classCode, {
+    const result = await classService.joinClassByCode(student.id, validated.classCode, {
       displayName: validated.displayName,
       registerNumber: validated.registerNumber
     });
@@ -276,13 +276,14 @@ studentClassRouter.post('/join-code', (req: AuthenticatedRequest, res: Response)
   }
 });
 
-studentClassRouter.post('/join-qr', (req: AuthenticatedRequest, res: Response) => {
+
+studentClassRouter.post('/join-qr', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const student = store.findStudentByUserId(req.user!.userId);
     if (!student) return res.status(403).json({ message: 'Student profile not found' });
 
     const validated = JoinClassQrSchema.parse(req.body);
-    const result = classService.joinClassByQr(student.id, validated.qrToken, {
+    const result = await classService.joinClassByQr(student.id, validated.qrToken, {
       displayName: validated.displayName,
       registerNumber: validated.registerNumber
     });
@@ -292,6 +293,7 @@ studentClassRouter.post('/join-qr', (req: AuthenticatedRequest, res: Response) =
     res.status(400).json({ message });
   }
 });
+
 
 studentClassRouter.post('/join', (req: AuthenticatedRequest, res: Response) => {
   try {
