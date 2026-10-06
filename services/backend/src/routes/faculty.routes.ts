@@ -190,3 +190,57 @@ facultyRouter.get('/sessions/:id/audit-logs', (req: AuthenticatedRequest<{ id: s
   const logs = auditService.getSessionAuditLogs(req.params.id);
   res.json(logs);
 });
+
+facultyRouter.post('/sessions/:id/grant-permission', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
+  try {
+    const faculty = store.findFacultyByUserId(req.user!.userId);
+    if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
+
+    const { studentId, durationMinutes } = req.body;
+    if (!studentId) return res.status(400).json({ message: 'studentId is required' });
+
+    const minutes = Math.max(1, Math.min(120, parseInt(durationMinutes || '5', 10)));
+    const result = sessionService.grantTemporaryAccess(req.params.id, studentId, minutes, faculty.id);
+
+    auditService.logAction({
+      institutionId: req.user!.institutionId,
+      facultyId: faculty.id,
+      userId: req.user!.userId,
+      action: 'TEMPORARY_ACCESS_GRANTED',
+      sessionId: req.params.id,
+      result: 'SUCCESS'
+    });
+
+    res.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
+  }
+});
+
+facultyRouter.post('/sessions/:id/revoke-permission', (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
+  try {
+    const faculty = store.findFacultyByUserId(req.user!.userId);
+    if (!faculty) return res.status(403).json({ message: 'Faculty not found' });
+
+    const { studentId } = req.body;
+    if (!studentId) return res.status(400).json({ message: 'studentId is required' });
+
+    const result = sessionService.revokeTemporaryAccess(req.params.id, studentId, faculty.id);
+
+    auditService.logAction({
+      institutionId: req.user!.institutionId,
+      facultyId: faculty.id,
+      userId: req.user!.userId,
+      action: 'TEMPORARY_ACCESS_REVOKED',
+      sessionId: req.params.id,
+      result: 'SUCCESS'
+    });
+
+    res.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
+  }
+});
+

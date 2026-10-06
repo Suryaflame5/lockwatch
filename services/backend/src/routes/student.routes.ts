@@ -157,3 +157,31 @@ studentRouter.post('/emergency/exit', ...studentAuth, (req: AuthenticatedRequest
     res.status(400).json({ message });
   }
 });
+
+studentRouter.post('/sessions/:id/request-permission', ...studentAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
+  try {
+    const student = store.findStudentByUserId(req.user!.userId);
+    if (!student) return res.status(404).json({ message: 'Student profile not found' });
+
+    const reason = req.body.reason || 'Student requested permission to use phone';
+    const result = sessionService.requestTemporaryAccess(req.params.id, student.id, reason);
+    res.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
+  }
+});
+
+studentRouter.get('/sessions/:id/permission-status', ...studentAuth, (req: AuthenticatedRequest<{ id: string }>, res: Response) => {
+  try {
+    const student = store.findStudentByUserId(req.user!.userId);
+    if (!student) return res.status(404).json({ message: 'Student profile not found' });
+
+    const status = sessionService.getParticipantPermissionStatus(req.params.id, student.id);
+    res.json(status);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(400).json({ message });
+  }
+});
+

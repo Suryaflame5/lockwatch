@@ -265,6 +265,12 @@ export interface SessionParticipant {
   offlineDurationSeconds: number;
   lockVerified: boolean;
   lockFailureReason?: string | null;
+  permissionRequested?: boolean;
+  permissionReason?: string | null;
+  permissionRequestedAt?: string | null;
+  isAccessGranted?: boolean;
+  accessGrantedUntil?: string | null;
+  temporaryAccessMinutes?: number;
   createdAt: string;
   updatedAt: string;
 }

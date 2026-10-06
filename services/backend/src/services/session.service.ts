@@ -377,11 +377,30 @@ export class SessionService {
     const session = this.store.sessions.get(sessionId);
     if (!session) throw new Error('Session not found');
 
+    const now = Date.now();
     const participants = this.store.getSessionParticipants(sessionId).map(p => {
       const student = this.store.students.get(p.studentId);
       const device = this.store.devices.get(p.deviceId);
+
+      // Check if granted access has expired
+      let isAccessGranted = p.isAccessGranted || false;
+      let accessGrantedUntil = p.accessGrantedUntil || null;
+      if (isAccessGranted && accessGrantedUntil) {
+        if (new Date(accessGrantedUntil).getTime() <= now) {
+          isAccessGranted = false;
+          p.isAccessGranted = false;
+          p.deviceLocked = true;
+        }
+      }
+
       return {
         ...p,
+        permissionRequested: p.permissionRequested || false,
+        permissionReason: p.permissionReason || null,
+        permissionRequestedAt: p.permissionRequestedAt || null,
+        isAccessGranted,
+        accessGrantedUntil,
+        temporaryAccessMinutes: p.temporaryAccessMinutes || 0,
         studentName: student?.name || 'Unknown',
         registerNumber: student?.registerNumber || 'Unknown',
         platform: device?.platform || PlatformType.ANDROID,
@@ -398,6 +417,140 @@ export class SessionService {
       metrics: this.getLiveDashboardMetrics(sessionId),
       participants,
       alerts: this.store.getSessionAlerts(sessionId).slice(0, 50)
+    };
+  }
+
+  public requestTemporaryAccess(sessionId: string, studentId: string, reason: string) {
+    const session = this.store.sessions.get(sessionId);
+    if (!session) throw new Error('Session not found');
+
+    const participant = this.store.findParticipant(sessionId, studentId);
+    if (!participant) throw new Error('Student not found in this session');
+
+    const student = this.store.students.get(studentId);
+    const requestedAt = new Date().toISOString();
+
+    participant.permissionRequested = true;
+    participant.permissionReason = reason;
+    participant.permissionRequestedAt = requestedAt;
+    participant.updatedAt = requestedAt;
+
+    this.wsGateway.broadcastToSession(sessionId, 'permission.requested', {
+      sessionId,
+      studentId,
+      studentName: student?.name || 'Student',
+      registerNumber: student?.registerNumber || '',
+      reason,
+      requestedAt
+    });
+
+    Logger.info(`Student ${student?.name || studentId} requested temporary phone access: "${reason}"`, {
+      sessionId,
+      studentId
+    });
+
+    return {
+      success: true,
+      message: 'Permission request sent to faculty.'
+    };
+  }
+
+  public grantTemporaryAccess(sessionId: string, studentId: string, durationMinutes: number, facultyId: string) {
+    const session = this.store.sessions.get(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (session.facultyId !== facultyId) throw new Error('Unauthorized: You are not the faculty for this session');
+
+    const participant = this.store.findParticipant(sessionId, studentId);
+    if (!participant) throw new Error('Student not found in this session');
+
+    const student = this.store.students.get(studentId);
+    const grantedUntil = new Date(Date.now() + durationMinutes * 60 * 1000).toISOString();
+
+    participant.permissionRequested = false;
+    participant.isAccessGranted = true;
+    participant.accessGrantedUntil = grantedUntil;
+    participant.temporaryAccessMinutes = durationMinutes;
+    participant.deviceLocked = false;
+    participant.updatedAt = new Date().toISOString();
+
+    this.wsGateway.broadcastToSession(sessionId, 'permission.granted', {
+      sessionId,
+      studentId,
+      durationMinutes,
+      accessGrantedUntil: grantedUntil,
+      studentName: student?.name || 'Student'
+    });
+
+    Logger.info(`Faculty granted ${durationMinutes} minutes phone access to ${student?.name || studentId}`, {
+      sessionId,
+      studentId,
+      durationMinutes,
+      grantedUntil
+    });
+
+    return {
+      success: true,
+      durationMinutes,
+      accessGrantedUntil: grantedUntil
+    };
+  }
+
+  public revokeTemporaryAccess(sessionId: string, studentId: string, facultyId: string) {
+    const session = this.store.sessions.get(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (session.facultyId !== facultyId) throw new Error('Unauthorized');
+
+    const participant = this.store.findParticipant(sessionId, studentId);
+    if (!participant) throw new Error('Student not found in this session');
+
+    participant.isAccessGranted = false;
+    participant.accessGrantedUntil = null;
+    participant.deviceLocked = true;
+    participant.updatedAt = new Date().toISOString();
+
+    this.wsGateway.broadcastToSession(sessionId, 'permission.revoked', {
+      sessionId,
+      studentId
+    });
+
+    Logger.info(`Faculty revoked phone access for student ${studentId}`, { sessionId, studentId });
+
+    return { success: true };
+  }
+
+  public getParticipantPermissionStatus(sessionId: string, studentId: string) {
+    const participant = this.store.findParticipant(sessionId, studentId);
+    if (!participant) {
+      return {
+        isAccessGranted: false,
+        permissionRequested: false,
+        remainingSeconds: 0,
+        accessGrantedUntil: null
+      };
+    }
+
+    const now = Date.now();
+    let isAccessGranted = participant.isAccessGranted || false;
+    let remainingSeconds = 0;
+
+    if (isAccessGranted && participant.accessGrantedUntil) {
+      const remainingMs = new Date(participant.accessGrantedUntil).getTime() - now;
+      if (remainingMs > 0) {
+        remainingSeconds = Math.ceil(remainingMs / 1000);
+      } else {
+        isAccessGranted = false;
+        participant.isAccessGranted = false;
+        participant.deviceLocked = true;
+      }
+    }
+
+    return {
+      isAccessGranted,
+      permissionRequested: participant.permissionRequested || false,
+      permissionReason: participant.permissionReason || null,
+      permissionRequestedAt: participant.permissionRequestedAt || null,
+      remainingSeconds,
+      accessGrantedUntil: participant.accessGrantedUntil || null
     };
   }
 
