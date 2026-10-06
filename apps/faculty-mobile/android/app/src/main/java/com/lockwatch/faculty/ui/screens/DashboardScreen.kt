@@ -38,6 +38,8 @@ fun DashboardScreen(
     var newClassSection by remember { mutableStateOf("") }
     var creating by remember { mutableStateOf(false) }
 
+    var createError by remember { mutableStateOf<String?>(null) }
+
     fun loadClasses() {
         scope.launch {
             loading = true
@@ -76,7 +78,10 @@ fun DashboardScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showCreateDialog = true }, containerColor = RoyalBlue) {
+            FloatingActionButton(onClick = {
+                createError = null
+                showCreateDialog = true
+            }, containerColor = RoyalBlue) {
                 Icon(Icons.Default.Add, contentDescription = "Create Class", tint = TextPrimary)
             }
         }
@@ -124,11 +129,31 @@ fun DashboardScreen(
 
     if (showCreateDialog) {
         AlertDialog(
-            onDismissRequest = { showCreateDialog = false },
+            onDismissRequest = {
+                if (!creating) {
+                    showCreateDialog = false
+                    createError = null
+                }
+            },
             containerColor = CardDark,
             title = { Text("Create Class", color = TextPrimary) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (createError != null) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = AlertRed.copy(alpha = 0.15f)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = createError ?: "",
+                                color = AlertRed,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
                     OutlinedTextField(
                         value = newClassName,
                         onValueChange = { newClassName = it },
@@ -172,20 +197,23 @@ fun DashboardScreen(
                     onClick = {
                         scope.launch {
                             creating = true
+                            createError = null
                             try {
                                 val cls = withContext(Dispatchers.IO) {
                                     FacultyApiClient.createClass(
-                                        newClassName,
-                                        newClassSubject,
-                                        newClassSection.ifBlank { null }
+                                        name = newClassName,
+                                        subject = newClassSubject,
+                                        section = newClassSection.ifBlank { null }
                                     )
                                 }
-                                classes = classes + cls
+                                classes = listOf(cls) + classes
                                 showCreateDialog = false
                                 newClassName = ""
                                 newClassSubject = ""
                                 newClassSection = ""
-                            } catch (_: Exception) {
+                                createError = null
+                            } catch (e: Exception) {
+                                createError = e.message ?: "Failed to create class"
                             } finally {
                                 creating = false
                             }
@@ -202,7 +230,12 @@ fun DashboardScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) {
+                TextButton(onClick = {
+                    if (!creating) {
+                        showCreateDialog = false
+                        createError = null
+                    }
+                }) {
                     Text("Cancel", color = TextSecondary)
                 }
             }

@@ -14,9 +14,10 @@ object FacultyApiClient {
     private val JSON = "application/json; charset=utf-8".toMediaType()
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .build()
 
     var accessToken: String? = null
@@ -89,24 +90,53 @@ object FacultyApiClient {
         }
     }
 
-    fun createClass(name: String, subject: String, section: String?): AcademicClass {
+    fun createClass(
+        name: String,
+        subject: String,
+        section: String? = null,
+        department: String = "Computer Science & Engineering",
+        year: String = "2026-2027",
+        semester: String = "Semester 1"
+    ): AcademicClass {
         val body = JSONObject().apply {
-            put("name", name)
-            put("subject", subject)
-            if (section != null) put("section", section)
+            put("name", name.trim())
+            put("subject", subject.trim())
+            put("section", if (!section.isNullOrBlank()) section.trim() else "A")
+            put("department", department.trim())
+            put("year", year.trim())
+            put("semester", semester.trim())
         }.toString().toRequestBody(JSON)
         val req = authRequest("$BASE_URL/classes").post(body).build()
         client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) throw IOException("Create class failed: ${resp.code}")
-            val j = JSONObject(resp.body!!.string())
+            val respStr = resp.body?.string() ?: "{}"
+            if (!resp.isSuccessful) {
+                val errMsg = try {
+                    JSONObject(respStr).optString("message", "HTTP error ${resp.code}")
+                } catch (e: Exception) {
+                    "HTTP error ${resp.code}"
+                }
+                throw IOException(errMsg)
+            }
+            val j = JSONObject(respStr)
+            val joinCodeVal = when {
+                j.has("joinCode") && !j.isNull("joinCode") -> j.getString("joinCode")
+                j.has("classCode") && !j.isNull("classCode") -> j.getString("classCode")
+                else -> ""
+            }
+            val facultyIdVal = when {
+                j.has("facultyId") && !j.isNull("facultyId") -> j.getString("facultyId")
+                j.has("createdBy") && !j.isNull("createdBy") -> j.getString("createdBy")
+                else -> ""
+            }
             return AcademicClass(
                 id = j.getString("id"),
                 name = j.getString("name"),
                 subject = j.getString("subject"),
                 section = j.optString("section").takeIf { s -> s.isNotEmpty() },
-                joinCode = j.getString("joinCode"),
-                facultyId = j.getString("facultyId"),
-                institutionId = j.getString("institutionId")
+                joinCode = joinCodeVal,
+                facultyId = facultyIdVal,
+                institutionId = j.optString("institutionId", ""),
+                studentCount = j.optInt("studentCount", 0)
             )
         }
     }

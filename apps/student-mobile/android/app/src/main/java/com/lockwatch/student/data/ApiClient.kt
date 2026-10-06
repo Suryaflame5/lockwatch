@@ -27,9 +27,10 @@ class StudentApiClient(private val context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
-        .writeTimeout(20, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .build()
 
     private var activeWebSocket: WebSocket? = null
@@ -402,13 +403,21 @@ class StudentApiClient(private val context: Context) {
             )
         } else null
 
+        val instObj = uObj.optJSONObject("institution")
+        val institutionId = when {
+            uObj.has("institutionId") && !uObj.isNull("institutionId") -> uObj.getString("institutionId")
+            instObj != null && instObj.has("id") -> instObj.getString("id")
+            sObj != null && sObj.has("institutionId") -> sObj.getString("institutionId")
+            else -> ""
+        }
+
         return User(
             id = uObj.getString("id"),
             email = uObj.optString("email", null),
             phoneNumber = uObj.optString("phoneNumber", null),
             name = uObj.getString("name"),
             role = uObj.getString("role"),
-            institutionId = uObj.getString("institutionId"),
+            institutionId = institutionId,
             studentProfile = sProfile,
             device = device
         )
