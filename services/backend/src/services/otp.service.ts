@@ -86,6 +86,7 @@ export class OtpService {
     phoneNumber: string;
     expiresInSeconds: number;
     resendCooldownSeconds: number;
+    debugOtp?: string;
   }> {
     const phoneNumber = normalizePhoneNumber(rawPhone);
     const now = Date.now();
