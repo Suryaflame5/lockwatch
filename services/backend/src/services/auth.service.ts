@@ -20,6 +20,8 @@ import { Logger } from '../logger.js';
 import { OtpService, OtpProvider } from './otp.service.js';
 import { normalizePhoneNumber } from './phone.utils.js';
 import { PostgresSync } from '../store/postgres-sync.js';
+import { PostgresService } from '../store/postgres.js';
+
 
 export interface TokenPayload {
   userId: string;
@@ -42,6 +44,27 @@ export class AuthService {
 
   public setOtpProvider(provider: OtpProvider): void {
     this.otpService.setProvider(provider);
+  }
+
+  /**
+   * Fetches the live password_hash and pin_hash directly from PostgreSQL for a user.
+   * This ensures we always verify against the current stored hash, even if the in-memory
+   * cache was hydrated with an old/stale hash from a prior DB state.
+   */
+  private async fetchFreshHashesFromDb(userId: string): Promise<{ passwordHash: string | null; pinHash: string | null }> {
+    try {
+      const pg = PostgresService.getInstance();
+      const res = await pg.query('SELECT password_hash, pin_hash FROM users WHERE id = $1', [userId]);
+      if (res.rows.length > 0) {
+        return {
+          passwordHash: res.rows[0].password_hash || null,
+          pinHash: res.rows[0].pin_hash || null
+        };
+      }
+    } catch {
+      // Fall back to in-memory hash if DB query fails
+    }
+    return { passwordHash: null, pinHash: null };
   }
 
   public async facultyLogin(payload: {
@@ -77,12 +100,17 @@ export class AuthService {
       throw new Error('Invalid faculty credentials');
     }
 
+    // Always fetch fresh hashes from PostgreSQL to avoid stale in-memory cache issues
+    const freshHashes = await this.fetchFreshHashesFromDb(user.id);
+    const passwordHashToUse = freshHashes.passwordHash || user.passwordHash;
+    const pinHashToUse = freshHashes.pinHash || user.pinHash;
+
     // Verify Password or PIN
     let authenticated = false;
-    if (payload.password && user.passwordHash) {
-      authenticated = await bcrypt.compare(payload.password, user.passwordHash);
-    } else if (payload.pin && user.pinHash) {
-      authenticated = await bcrypt.compare(payload.pin, user.pinHash);
+    if (payload.password && passwordHashToUse) {
+      authenticated = await bcrypt.compare(payload.password, passwordHashToUse);
+    } else if (payload.pin && pinHashToUse) {
+      authenticated = await bcrypt.compare(payload.pin, pinHashToUse);
     }
 
     if (!authenticated) {
@@ -481,7 +509,10 @@ export class AuthService {
         throw new Error('Student account inactive or unavailable');
       }
 
-      const valid = await bcrypt.compare(payload.password, user.passwordHash);
+      // Always fetch fresh hash from PostgreSQL to avoid stale in-memory cache
+      const freshHashes = await this.fetchFreshHashesFromDb(user.id);
+      const hashToUse = freshHashes.passwordHash || user.passwordHash;
+      const valid = await bcrypt.compare(payload.password, hashToUse);
       if (!valid) {
         throw new Error('Invalid student credentials');
       }
