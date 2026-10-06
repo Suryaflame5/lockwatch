@@ -15,6 +15,8 @@ import { reportRouter } from './routes/report.routes.js';
 import { healthRouter } from './routes/health.routes.js';
 import { classRouter, studentClassRouter } from './routes/class.routes.js';
 import { ExpirationWorker } from './services/expiration.worker.js';
+import { DataStore } from './store/database.js';
+import { PostgresSync } from './store/postgres-sync.js';
 
 export const app = express();
 
@@ -72,13 +74,12 @@ if (process.env.NODE_ENV !== 'test') {
   const host = process.env.HOST || '0.0.0.0';
 
   const startServer = async () => {
-    if (process.env.AUTO_MIGRATE === 'true') {
-      try {
-        Logger.info('AUTO_MIGRATE is enabled. Running database migrations...');
-        await runMigrations();
-      } catch (err: any) {
-        Logger.error('Failed to run database migrations during startup', { error: err.message });
-      }
+    try {
+      Logger.info('Initializing LockWatch database layer...');
+      await runMigrations().catch(e => Logger.warn('Migration run note:', { msg: e.message }));
+      await PostgresSync.getInstance().init(DataStore.getInstance());
+    } catch (err: any) {
+      Logger.error('Database initialization warning', { error: err.message });
     }
 
     server.listen(config.port, host, () => {

@@ -19,6 +19,7 @@ import {
 import { Logger } from '../logger.js';
 import { OtpService, OtpProvider } from './otp.service.js';
 import { normalizePhoneNumber } from './phone.utils.js';
+import { PostgresSync } from '../store/postgres-sync.js';
 
 export interface TokenPayload {
   userId: string;
@@ -230,6 +231,9 @@ export class AuthService {
       updatedAt: new Date().toISOString()
     };
     this.store.devices.set(deviceId, device);
+    PostgresSync.getInstance().saveUser(user).catch(() => {});
+    PostgresSync.getInstance().saveStudent(student).catch(() => {});
+    PostgresSync.getInstance().saveDevice(device).catch(() => {});
 
     const tokens = this.generateTokenPair({
       userId,
@@ -446,6 +450,9 @@ export class AuthService {
           updatedAt: new Date().toISOString()
         };
         this.store.devices.set(newDevId, dev);
+        PostgresSync.getInstance().saveUser(user).catch(() => {});
+        PostgresSync.getInstance().saveStudent(student).catch(() => {});
+        PostgresSync.getInstance().saveDevice(dev).catch(() => {});
 
         // Auto-enroll in all active classes of the institution
         for (const cls of this.store.classes.values()) {

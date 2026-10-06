@@ -20,6 +20,7 @@ import {
 } from '@lockwatch/shared-models';
 import { WebSocketGateway } from '../websocket/gateway.js';
 import { Logger } from '../logger.js';
+import { PostgresSync } from '../store/postgres-sync.js';
 
 export class ClassService {
   private store = DataStore.getInstance();
@@ -71,6 +72,7 @@ export class ClassService {
 
     this.store.classes.set(id, newClass);
     this.store.indexClassCode(code, id);
+    PostgresSync.getInstance().saveClass(newClass).catch(() => {});
 
     Logger.info(`Class created: ${newClass.name} (${newClass.classCode}) by faculty ${facultyId}`);
     return newClass;
@@ -505,7 +507,8 @@ export class ClassService {
     classCode: string,
     academicIdentity?: { displayName?: string; registerNumber?: string }
   ): { class: Class; membership: ClassMembership; message: string } {
-    const cls = this.store.findClassByCode(classCode);
+    const cleanCode = classCode.trim().toUpperCase();
+    const cls = this.store.findClassByCode(cleanCode) || this.store.findClassByCode(classCode.trim());
     if (!cls) {
       throw new Error(`That class code is invalid or has expired.`);
     }

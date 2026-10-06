@@ -26,6 +26,7 @@ import {
   OtpChallenge,
   ClassJoinMethod
 } from '@lockwatch/shared-models';
+import { PostgresSync } from './postgres-sync.js';
 
 /**
  * High-Integrity DataStore with transactional simulation, multi-tenant isolation,
@@ -583,6 +584,7 @@ export class DataStore {
   public addClassMembership(membership: ClassMembership) {
     this.classMemberships.set(membership.id, membership);
     this.classMembershipIndex.add(`${membership.classId}:${membership.studentId}`);
+    PostgresSync.getInstance().saveClassMembership(membership).catch(() => {});
   }
 
   public removeClassMembership(classId: string, studentId: string) {

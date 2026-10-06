@@ -180,10 +180,10 @@ export const UpdateClassSchema = z.object({
 });
 
 export const JoinClassCodeSchema = z.object({
-  classCode: z.string().min(4, 'Class code is required').max(30),
+  classCode: z.string().min(3, 'Class code is required').max(30),
   displayName: z.string().min(2, 'Full name is required').max(100).optional(),
   registerNumber: z.string().min(2, 'Register number is required').max(50).optional(),
-  deviceId: z.string().uuid('Valid device UUID required').optional()
+  deviceId: z.string().optional()
 });
 
 export const JoinClassQrSchema = z.object({
